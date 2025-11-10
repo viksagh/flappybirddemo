@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flappy Bird Demo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <h1>Flappy Bird — Demo</h1>
+
+    <div class="game-wrap">
+      <canvas id="game" width="480" height="640" aria-label="Flappy Bird game canvas"></canvas>
+
+      <div class="overlay" id="overlay">
+        <div id="message">Click or press Space to start</div>
+        <div id="score">Score: 0</div>
+      </div>
+    </div>
+
+    <p class="controls">Controls: Space / Click / Tap = flap</p>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>

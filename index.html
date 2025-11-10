@@ -11,12 +11,30 @@
     <h1>Flappy Bird — Demo</h1>
 
     <div class="game-wrap">
-      <canvas id="game" width="480" height="640" aria-label="Flappy Bird game canvas"></canvas>
+      <canvas id="game" width="480" height="640" aria-label="Flappy Bird game canvas" style="image-rendering: pixelated;"></canvas>
 
       <div class="overlay" id="overlay">
         <div id="message">Click or press Space to start</div>
         <div id="score">Score: 0</div>
       </div>
+    </div>
+
+    <div id="menu">
+      <label><input type="checkbox" id="rainToggle"> Enable Rain</label>
+      <br>
+      <label><input type="checkbox" id="easyToggle"> Enable Easy Mode</label>
+      <br>
+      <label><input type="checkbox" id="lowGraphicsToggle"> Enable Low Graphics Mode</label>
+      <br>
+      <label><input type="checkbox" id="desertToggle"> Desert Scenery</label>
+      <br>
+      <label><input type="checkbox" id="snowToggle"> Snow Scenery</label>
+      <br>
+      <label><input type="checkbox" id="darkModeToggle"> Dark Mode</label>
+      <br>
+      <label><input type="checkbox" id="musicToggle" checked> Enable Background Music</label>
+      <br>
+      <label><input type="checkbox" id="sfxToggle" checked> Enable SFX</label>
     </div>
 
     <p class="controls">Controls: Space / Click / Tap = flap</p>

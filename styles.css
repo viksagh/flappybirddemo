@@ -11,6 +11,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  overflow: hidden; /* hide scroll bars */
 }
 
 main {
@@ -37,6 +38,7 @@ canvas {
   background: linear-gradient(#70c5ce, #5eb7c9);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(18, 50, 80, 0.15);
+  image-rendering: pixelated;
 }
 
 .overlay {
@@ -83,4 +85,24 @@ canvas {
   color: #023;
   text-align: center;
   margin-top: 12px;
+}
+
+#menu {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+}
+
+#menu label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#menu input {
+  margin-right: 5px;
 }

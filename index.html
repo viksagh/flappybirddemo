@@ -19,22 +19,29 @@
       </div>
     </div>
 
-    <div id="menu">
-      <label><input type="checkbox" id="rainToggle"> Enable Rain</label>
-      <br>
-      <label><input type="checkbox" id="easyToggle"> Enable Easy Mode</label>
-      <br>
-      <label><input type="checkbox" id="lowGraphicsToggle"> Enable Low Graphics Mode</label>
-      <br>
-      <label><input type="checkbox" id="desertToggle"> Desert Scenery</label>
-      <br>
-      <label><input type="checkbox" id="snowToggle"> Snow Scenery</label>
-      <br>
-      <label><input type="checkbox" id="darkModeToggle"> Dark Mode</label>
-      <br>
-      <label><input type="checkbox" id="musicToggle" checked> Enable Background Music</label>
-      <br>
-      <label><input type="checkbox" id="sfxToggle" checked> Enable SFX</label>
+    <div class="settings-wrapper">
+      <button id="settingsToggle" type="button" aria-label="Toggle settings" aria-expanded="false" aria-haspopup="true">
+        <img src="assets/settings.png" alt="Settings icon">
+      </button>
+      <div id="menu" hidden>
+        <label><input type="checkbox" id="rainToggle"> Enable Rain</label>
+        <br>
+        <label><input type="checkbox" id="easyToggle"> Enable Easy Mode</label>
+        <br>
+        <label><input type="checkbox" id="hardModeToggle"> Enable Hard Mode</label>
+        <br>
+        <label><input type="checkbox" id="lowGraphicsToggle"> Enable Low Graphics Mode</label>
+        <br>
+        <label><input type="checkbox" id="desertToggle"> Desert Scenery</label>
+        <br>
+        <label><input type="checkbox" id="snowToggle"> Snow Scenery</label>
+        <br>
+        <label><input type="checkbox" id="darkModeToggle"> Dark Mode</label>
+        <br>
+        <label><input type="checkbox" id="musicToggle" checked> Enable Background Music</label>
+        <br>
+        <label><input type="checkbox" id="sfxToggle" checked> Enable SFX</label>
+      </div>
     </div>
 
     <p class="controls">Controls: Space / Click / Tap = flap</p>

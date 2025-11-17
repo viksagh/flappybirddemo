@@ -43,6 +43,7 @@ let lowGraphicsMode = false;
 let desertMode = false;
 let snowMode = false;
 let darkMode = false;
+let hardMode = false;
 
 // Sound effects
 const bgMusic = new Audio('sfx/background music.mp3');
@@ -78,7 +79,7 @@ function reset() {
   }
   groundOffset = 0;
   bgMusic.currentTime = 0; // rewind bg music
-  if (musicEnabled) bgMusic.play();
+  // removed bgMusic.play() from here to play only after user interaction
   message.textContent = 'Click or press Space to start';
   scoreEl.textContent = 'Score: 0 | High: ' + highScore;
 }
@@ -87,7 +88,7 @@ function spawnPipe() {
   const topHeight = 60 + Math.random() * (HEIGHT - PIPE_GAP - 140);
   pipeCount++;
   const isRed = pipeCount % 5 === 0;
-  pipes.push({ x: WIDTH + 20, topHeight, passed: false, isRed });
+  pipes.push({ x: WIDTH + 20, topHeight, passed: false, isRed, offset: 0, direction: 1 });
 }
 
 function flap() {
@@ -111,6 +112,16 @@ function update() {
   for (let i = pipes.length - 1; i >= 0; i--) {
     const p = pipes[i];
     p.x -= pipeSpeed;
+
+    // Hard mode movement for every 5th pipe
+    if (hardMode && p.isRed) {
+      p.offset += p.direction * 0.4;
+      if (p.offset > 30 || p.offset < -30) {
+        p.direction *= -1;
+      }
+    } else {
+      p.offset = 0;
+    }
 
     // scoring
     if (!p.passed && bird.x > p.x + PIPE_WIDTH / 2) {
@@ -139,7 +150,8 @@ function update() {
     const inX = bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + PIPE_WIDTH;
     if (inX) {
       // check overlap with gap
-      if (bird.y - bird.radius < p.topHeight || bird.y + bird.radius > p.topHeight + PIPE_GAP) {
+      const topLimit = p.topHeight + p.offset;
+      if (bird.y - bird.radius < topLimit || bird.y + bird.radius > topLimit + PIPE_GAP) {
         endGame();
       }
     }
@@ -163,7 +175,8 @@ function update() {
     }
 
     // Occasionally spawn a new raindrop
-    if (Math.random() < 0.2) {
+    const spawnRate = lowGraphicsMode ? 0.05 : 0.2; // 75% fewer raindrops in low graphics mode
+    if (Math.random() < spawnRate) {
       raindrops.push({
         x: Math.random() * WIDTH,
         y: 0,
@@ -198,7 +211,7 @@ function draw() {
   // background sky solid color for pixelated look
   let skyColor = darkMode ? '#2d3436' : '#87CEEB'; // modern dark navy vs sky blue
   if (rainEnabled) skyColor = darkMode ? '#1e272e' : '#a29bfe'; // darker for rain vs lavender
-  else if (desertMode) skyColor = darkMode ? '#d63031' : '#ffeaa7'; // deep red vs warm yellow for desert
+  else if (desertMode) skyColor = darkMode ? '#830001' : '#ffeaa7'; // deep red vs warm yellow for desert
   else if (snowMode) skyColor = darkMode ? '#636e72' : '#74b9ff'; // dark gray vs light blue for snow
   ctx.fillStyle = skyColor;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -213,6 +226,26 @@ function draw() {
     ctx.fillRect(320, 55, 25, 12);
     ctx.fillRect(500, 45, 35, 18);
     ctx.fillRect(520, 40, 18, 8);
+  }
+
+  // add dark clouds for rainy mode
+  if (rainEnabled) {
+    ctx.fillStyle = darkMode ? '#2d3436' : '#636e72'; // dark gray clouds
+    // larger, more ominous cloud shapes
+    ctx.fillRect(80, 25, 60, 25);
+    ctx.fillRect(110, 15, 35, 20);
+    ctx.fillRect(90, 35, 45, 15);
+    ctx.fillRect(280, 40, 80, 30);
+    ctx.fillRect(310, 30, 40, 25);
+    ctx.fillRect(290, 55, 55, 20);
+    ctx.fillRect(480, 20, 70, 35);
+    ctx.fillRect(510, 10, 30, 25);
+    ctx.fillRect(490, 40, 50, 20);
+    // add some smaller cloud wisps
+    ctx.fillRect(200, 35, 25, 12);
+    ctx.fillRect(220, 30, 15, 8);
+    ctx.fillRect(600, 45, 30, 15);
+    ctx.fillRect(620, 40, 20, 10);
   }
 
   // draw moving ground
@@ -242,11 +275,21 @@ function draw() {
       ctx.fillStyle = dirtColor;
       ctx.fillRect(groundOffset, HEIGHT - 40, WIDTH, 40);
       ctx.fillRect(groundOffset + WIDTH, HEIGHT - 40, WIDTH, 40);
-    } else {
+    } else if (desertMode) {
       // desert or rain: solid
       ctx.fillStyle = groundColor;
       ctx.fillRect(groundOffset, HEIGHT - 80, WIDTH, 80);
       ctx.fillRect(groundOffset + WIDTH, HEIGHT - 80, WIDTH, 80);
+    }
+    else //rain mode : grass top dirt bottom//
+         {
+        ctx.fillStyle = groundColor;
+        ctx.fillRect(groundOffset, HEIGHT - 80, WIDTH, 40);
+        ctx.fillRect(groundOffset + WIDTH, HEIGHT - 80, WIDTH, 40);
+        ctx.fillStyle = dirtColor;
+        ctx.fillRect(groundOffset, HEIGHT - 40, WIDTH, 40);
+        ctx.fillRect(groundOffset + WIDTH, HEIGHT - 40, WIDTH, 40);
+
     }
   }
 
@@ -284,28 +327,29 @@ function draw() {
 
       // pipe cap (simple)
       ctx.strokeStyle = capFill;
-      ctx.strokeRect(p.x, p.topHeight - 10, PIPE_WIDTH, 10);
-      ctx.strokeRect(p.x, p.topHeight + PIPE_GAP, PIPE_WIDTH, 10);
+      ctx.strokeRect(p.x, p.topHeight + p.offset - 10, PIPE_WIDTH, 10);
+      ctx.strokeRect(p.x, p.topHeight + PIPE_GAP + p.offset, PIPE_WIDTH, 10);
     } else {
       ctx.fillStyle = baseColor;
       // top pipe
-      ctx.fillRect(p.x, 0, PIPE_WIDTH, p.topHeight);
-      ctx.fillRect(p.x, p.topHeight + PIPE_GAP, PIPE_WIDTH, HEIGHT - (p.topHeight + PIPE_GAP) - 80);
+      ctx.fillRect(p.x, 0, PIPE_WIDTH, p.topHeight + p.offset);
+      ctx.fillRect(p.x, p.topHeight + PIPE_GAP + p.offset, PIPE_WIDTH, HEIGHT - (p.topHeight + PIPE_GAP + p.offset) - 80);
 
       // pipe cap (simple)
       ctx.fillStyle = capFill;
-      ctx.fillRect(p.x, p.topHeight - 10, PIPE_WIDTH, 10);
-      ctx.fillRect(p.x, p.topHeight + PIPE_GAP, PIPE_WIDTH, 10);
+      ctx.fillRect(p.x, p.topHeight + p.offset - 10, PIPE_WIDTH, 10);
+      ctx.fillRect(p.x, p.topHeight + PIPE_GAP + p.offset, PIPE_WIDTH, 10);
       // add outline
       ctx.strokeStyle = capStroke;
       ctx.lineWidth = 1;
-      ctx.strokeRect(p.x, p.topHeight - 10, PIPE_WIDTH, 10);
-      ctx.strokeRect(p.x, p.topHeight + PIPE_GAP, PIPE_WIDTH, 10);
+      ctx.strokeRect(p.x, p.topHeight + p.offset - 10, PIPE_WIDTH, 10);
+      ctx.strokeRect(p.x, p.topHeight + PIPE_GAP + p.offset, PIPE_WIDTH, 10);
     }
   }
 
   // bird
   let wingFlap = Math.sin(frames * 0.3) * 1.5; // wing flapping animation
+// ...
   ctx.save();
   ctx.translate(bird.x, bird.y);
   ctx.rotate(bird.rotation);
@@ -484,9 +528,13 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (gameOver) {
       reset();
+      running = true;
+      message.style.display = 'none';
+      if (musicEnabled) bgMusic.play();
     } else if (!running) {
       running = true;
       message.style.display = 'none';
+      if (musicEnabled) bgMusic.play();
     }
     if (!gameOver) flap();
   }
@@ -497,9 +545,13 @@ canvas.addEventListener('mousedown', (e) => {
   e.preventDefault();
   if (gameOver) {
     reset();
+    running = true;
+    message.style.display = 'none';
+    if (musicEnabled) bgMusic.play();
   } else if (!running) {
     running = true;
     message.style.display = 'none';
+    if (musicEnabled) bgMusic.play();
   }
   if (!gameOver) flap();
 });
@@ -509,9 +561,13 @@ canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   if (gameOver) {
     reset();
+    running = true;
+    message.style.display = 'none';
+    if (musicEnabled) bgMusic.play();
   } else if (!running) {
     running = true;
     message.style.display = 'none';
+    if (musicEnabled) bgMusic.play();
   }
   if (!gameOver) flap();
 }, { passive: false });
@@ -533,6 +589,13 @@ const easyToggle = document.getElementById('easyToggle');
 easyToggle.addEventListener('change', () => {
   easyMode = easyToggle.checked;
   currentPipeInterval = easyMode ? 225 : 90; // increase interval in easy mode
+});
+
+// Hard mode toggle
+const hardModeToggle = document.getElementById('hardModeToggle');
+hardMode = hardModeToggle.checked;
+hardModeToggle.addEventListener('change', () => {
+  hardMode = hardModeToggle.checked;
 });
 
 // Low graphics toggle
@@ -559,8 +622,15 @@ snowToggle.addEventListener('change', () => {
 
 // Dark mode toggle
 const darkModeToggle = document.getElementById('darkModeToggle');
+document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+darkMode = darkModeToggle.checked;
 darkModeToggle.addEventListener('change', () => {
   darkMode = darkModeToggle.checked;
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
 });
 
 // Music toggle
@@ -585,6 +655,19 @@ sfxToggle.addEventListener('change', () => {
     rainSound.currentTime = 0;
     rainSound.play();
   }
+});
+
+// Settings dropdown toggle
+const settingsToggle = document.getElementById('settingsToggle');
+const menu = document.getElementById('menu');
+settingsToggle.addEventListener('click', () => {
+  const isHidden = menu.hasAttribute('hidden');
+  if (isHidden) {
+    menu.removeAttribute('hidden');
+  } else {
+    menu.setAttribute('hidden', '');
+  }
+  settingsToggle.setAttribute('aria-expanded', (!isHidden).toString());
 });
 
 // init

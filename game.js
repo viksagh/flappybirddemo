@@ -315,18 +315,27 @@ function draw() {
   // pipes
   for (const p of pipes) {
     const baseColor = p.isRed ? (darkMode ? '#d63031' : '#e17055') : (darkMode ? '#00cec9' : '#00b894');
-    const capFill = darkMode ? '#ffffff' : '#000000';
-    const capStroke = darkMode ? '#000000' : '#ffffff';
+    const capFill = p.isRed
+      ? (darkMode ? '#ff9aa2' : '#ffd6cc')
+      : (darkMode ? '#9af5dd' : '#ccffda');
+    const capStroke = p.isRed
+      ? (darkMode ? '#861c27' : '#c45a4d')
+      : (darkMode ? '#0f8f79' : '#2f9d6b');
     if (lowGraphicsMode) {
       ctx.strokeStyle = baseColor;
       ctx.lineWidth = 2;
       // top pipe
-      ctx.strokeRect(p.x, 0, PIPE_WIDTH, p.topHeight);
+      ctx.strokeRect(p.x, 0, PIPE_WIDTH, p.topHeight + p.offset);
       // bottom pipe
-      ctx.strokeRect(p.x, p.topHeight + PIPE_GAP, PIPE_WIDTH, HEIGHT - (p.topHeight + PIPE_GAP) - 80);
+      ctx.strokeRect(
+        p.x,
+        p.topHeight + PIPE_GAP + p.offset,
+        PIPE_WIDTH,
+        HEIGHT - (p.topHeight + PIPE_GAP + p.offset) - 80
+      );
 
       // pipe cap (simple)
-      ctx.strokeStyle = capFill;
+      ctx.strokeStyle = capStroke;
       ctx.strokeRect(p.x, p.topHeight + p.offset - 10, PIPE_WIDTH, 10);
       ctx.strokeRect(p.x, p.topHeight + PIPE_GAP + p.offset, PIPE_WIDTH, 10);
     } else {
@@ -583,6 +592,76 @@ rainToggle.addEventListener('change', () => {
     rainSound.pause();
   }
 });
+
+// Fullscreen toggle
+const fullscreenToggle = document.getElementById('fullscreenToggle');
+const fullscreenTarget = document.documentElement;
+
+function getFullscreenElement() {
+  return document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.mozFullScreenElement ||
+    document.msFullscreenElement ||
+    null;
+}
+
+function requestFullscreen(element) {
+  const request = element.requestFullscreen ||
+    element.webkitRequestFullscreen ||
+    element.mozRequestFullScreen ||
+    element.msRequestFullscreen;
+  if (!request) {
+    return Promise.reject(new Error('Fullscreen API not supported'));
+  }
+  const result = request.call(element);
+  if (result instanceof Promise) return result;
+  return Promise.resolve();
+}
+
+function exitFullscreen() {
+  const exit = document.exitFullscreen ||
+    document.webkitExitFullscreen ||
+    document.mozCancelFullScreen ||
+    document.msExitFullscreen;
+  if (!exit) {
+    return Promise.reject(new Error('Fullscreen API not supported'));
+  }
+  const result = exit.call(document);
+  if (result instanceof Promise) return result;
+  return Promise.resolve();
+}
+
+function syncFullscreenState() {
+  const active = Boolean(getFullscreenElement());
+  document.body.classList.toggle('fullscreen-active', active);
+  
+  if (fullscreenToggle) {
+    fullscreenToggle.checked = active;
+  }
+}
+
+if (fullscreenToggle) {
+  fullscreenToggle.addEventListener('change', () => {
+    if (fullscreenToggle.checked) {
+      requestFullscreen(fullscreenTarget).catch((err) => {
+        console.error('Failed to enter fullscreen mode', err);
+        fullscreenToggle.checked = false;
+      });
+    } else {
+      exitFullscreen().catch((err) => {
+        console.error('Failed to exit fullscreen mode', err);
+        fullscreenToggle.checked = true;
+      });
+    }
+  });
+}
+
+document.addEventListener('fullscreenchange', syncFullscreenState);
+document.addEventListener('webkitfullscreenchange', syncFullscreenState);
+document.addEventListener('mozfullscreenchange', syncFullscreenState);
+document.addEventListener('MSFullscreenChange', syncFullscreenState);
+
+syncFullscreenState();
 
 // Easy mode toggle
 const easyToggle = document.getElementById('easyToggle');

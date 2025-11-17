@@ -18,6 +18,16 @@ body.fullscreen-active {
   margin: 0;
   width: 100vw;
   height: 100vh;
+  height: -webkit-fill-available;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  touch-action: none;
+  background-color: #000;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -53,9 +63,15 @@ h1 {
   margin: 0 auto;
 }
 body.fullscreen-active .game-wrap {
-  max-width: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,13 +87,17 @@ canvas {
   image-rendering: pixelated;
 }
 body.fullscreen-active canvas {
-  border-radius: 0;
-  box-shadow: none;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: 1920px;
+  height: 1080px;
+  background: linear-gradient(#70c5ce, #5eb7c9);
+  image-rendering: pixelated;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   max-width: 100vw;
   max-height: 100vh;
+  object-fit: contain;
 }
 
 .overlay {

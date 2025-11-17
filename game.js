@@ -530,7 +530,6 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-// Input handlers
 window.addEventListener('keydown', (e) => {
   if (inputDisabled) return;
   if (e.code === 'Space') {
